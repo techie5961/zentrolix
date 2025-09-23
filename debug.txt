@@ -1,0 +1,5 @@
+ setTimeout(() => {
+      const reward = '&#8358;' + Math.floor(Math.random() * (20 - 10 + 1)) + 10;
+      rewardText.innerHTML = reward;
+
+      popup.classList.add("show");
