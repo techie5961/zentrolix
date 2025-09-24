@@ -62,7 +62,15 @@
             </div>
             <form action="{{ url('admins/post/finance/settings/process') }}" onsubmit="PostRequest(event,this)"  method="POST" class="w-full column g-10">
               <input type="hidden" class="input" name="_token" value="{{ @csrf_token() }}">
-                <label for="">Daily Check-In Bonus(&#8358;)</label>
+               <label for="">Maximum Daily Tasks(free users)</label>
+                <div class="cont w-full border-1 h-50 border-color-silver bg br-10">
+                    <input value="{{ $finance_settings->daily_free_tasks ?? 0 }}" type="number" name="daily_free_tasks" placeholder="E.g 2" class="inp br-10 bg-transparent input required h-full w-full no-border">
+                </div>
+                  <label for="">Earnings per Task(free users)(&#8358;)</label>
+                <div class="cont w-full border-1 h-50 border-color-silver bg br-10">
+                    <input value="{{ $finance_settings->earnings_per_task ?? 0 }}" type="number" step="any" name="earnings_per_task" placeholder="E.g 500" class="inp br-10 bg-transparent input required h-full w-full no-border">
+                </div>
+              <label for="">Daily Check-In Bonus(&#8358;)</label>
                 <div class="cont w-full border-1 h-50 border-color-silver bg br-10">
                     <input value="{{ $finance_settings->daily_check_in ?? 0 }}" type="number" step="any" name="daily_check_in" placeholder="E.g 500" class="inp br-10 bg-transparent input required h-full w-full no-border">
                 </div>

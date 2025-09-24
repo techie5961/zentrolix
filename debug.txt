@@ -1,5 +1,81 @@
- setTimeout(() => {
-      const reward = '&#8358;' + Math.floor(Math.random() * (20 - 10 + 1)) + 10;
-      rewardText.innerHTML = reward;
+  // withdraw 
+    public function Withdraw(){
+      if(request()->input('amount') > Auth::guard('users')->user()->withdrawal){
+        return response()->json([
+            'message' => 'You cannot withdraw more than your balance',
+            'status' => 'error'
+        ]);
+      }
+      $asset=DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->orderBy('date','desc')->first();
+      $asset=json_decode($asset->json ?? '{}');
+      $product=DB::table('products')->where('id',$asset->id ?? 0)->first();
+      $finance_settings=json_decode(DB::table('settings')->where('key','finance_settings')->first()->json ?? '{}');
+      if(request()->input('amount') < ($asset->minimum_withdrawal ??  $finance_settings->min_withdrawal)){
+        return response()->json([
+            'message' => ''.($asset->name ?? '').' Minimum withdrawal is &#8358;'.number_format($asset->minimum_withdrawal ??  $finance_settings->min_withdrawal,2).'',
+            'status' => 'error'
+        ]);
+     }
+   //  return $product->withdrawal_portal ?? $finance_settings->withdrawal_status;
+   
+      if(($product->withdrawal_portal ?? $finance_settings->withdrawal_status) == 'closed'){
+        return response()->json([
+            'message' => ''.($asset->name ?? '').' Withdrawal portal is currently closed',
+            'status' => 'error'
+        ]);
+     }
+     $price=0;
+     if(DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->exists()){
+       $purchased= DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->first();
+       $active_asset=json_decode($purchased->json);
+       $price=$active_asset->price;
+     return   DB::table('transactions')->where('user_id',Auth::guard('users')->user()->id)->where('type','withdrawal')->whereDate('date','>',$purchased->date)->whereNot('status','rejected')->sum('amount');
 
-      popup.classList.add("show");
+         if(DB::table('transactions')->where('user_id',Auth::guard('users')->user()->id)->where('type','withdrawal')->whereDate('date','>',$purchased->date)->whereNot('status','rejected')->sum('amount') >= $price){
+            return response()->json([
+                'message' => 'You are required to recommit to continue withdrawing',
+                'status' => 'error'
+            ]);
+         }
+
+     }
+     if($price == 0){
+        return response()->json([
+            'message' => 'Please purchase and asset to be able to place withdrawal',
+            'status' => 'error'
+        ]);
+     }
+    
+
+      $fee=($finance_settings->withdrawal_fee*request()->input('amount'))/100;
+     DB::table('users')->where('id',Auth::guard('users')->user()->id)->update([
+        'withdrawal' => DB::raw('withdrawal - '.request()->input('amount').'')
+     ]);
+      DB::table('transactions')->insert([
+        'uniqid' => strtoupper(uniqid('trx')),
+        'amount' => request()->input('amount'),
+        'class' => 'debit',
+        'type' => 'withdrawal',
+        'json' => json_encode([
+            'fee' => $fee,
+            'amount' => request()->input('amount') - $fee,
+            'details' => [
+                'bank' => Auth::guard('users')->user()->bank
+            ]
+            ]),
+            'user_id' => Auth::guard('users')->user()->id,
+            'description' => 'Bank Withdrawal',
+            'status' => 'pending',
+            'updated' => Carbon::now(),
+            'date' => Carbon::now()
+      ]);
+       DB::table('notifications')->insert([
+        'message' => ucfirst(Auth::guard('users')->user()->username).' Just placed a withdrawal',
+        'date' => Carbon::now()
+    ]);
+      return response()->json([
+        'message' => 'Withdrawal placed successfully',
+        'status' => 'success',
+        'url' => url('users/wallet')
+      ]);
+    }

@@ -70,6 +70,9 @@ Route::prefix('users')->group(function(){
    Route::get('withdraw',[
       UsersDashboardController::class,"Withdraw"
    ]);
+    Route::get('assets',[
+      UsersDashboardController::class,"Assets"
+   ]);
    Route::get('skeleton',function(){
          return view('users.skeleton');
       });
@@ -150,8 +153,14 @@ Route::prefix('users')->group(function(){
       Route::get('purchase/product',[
       UsersGetRequestController::class,'PurchaseProduct'
       ]);
+         Route::get('recommit/product',[
+      UsersGetRequestController::class,'RecommitProduct'
+      ]);
       Route::get('purchase/product/confirm',[
          UsersGetRequestController::class,'PurchaseProductConfirm'
+      ]);
+      Route::get('recommit/product/confirm',[
+         UsersGetRequestController::class,'RecommitProductConfirm'
       ]);
       Route::get('deposit/complete',[
          UsersGetRequestController::class,'DepositComplete'

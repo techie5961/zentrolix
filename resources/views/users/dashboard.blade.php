@@ -24,6 +24,13 @@
 <strong class="pointer p-10 bg-white c-primary br-10 box-shadow" onclick="spa(event,'{{ url('users/recharge') }}')">Add Funds</strong>
             </div>
         </div>
+        <div class="w-full h-50 grid-full max-w-500 p-10 bg-light br-10 row align-center g-2">
+            <div class="h-full perfect-square no-shrink column bg-primary br-10 justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 256 256"><path d="M155.51,24.81a8,8,0,0,0-8.42.88L77.25,80H32A16,16,0,0,0,16,96v64a16,16,0,0,0,16,16H77.25l69.84,54.31A8,8,0,0,0,160,224V32A8,8,0,0,0,155.51,24.81ZM32,96H72v64H32ZM144,207.64,88,164.09V91.91l56-43.55Zm54-106.08a40,40,0,0,1,0,52.88,8,8,0,0,1-12-10.58,24,24,0,0,0,0-31.72,8,8,0,0,1,12-10.58ZM248,128a79.9,79.9,0,0,1-20.37,53.34,8,8,0,0,1-11.92-10.67,64,64,0,0,0,0-85.33,8,8,0,1,1,11.92-10.67A79.83,79.83,0,0,1,248,128Z"></path></svg>
+
+            </div>
+            <marquee behavior="" direction="" class="h-full row align-center w-full">🌟 Great News! 🚀 We’re back online! 🎉 Thank you for your patience during maintenance — enjoy an even better experience on our platform. 💡</marquee>
+        </div>
    <div class="grid br-10 grid-4 pc-grid-4 w-full g-10 bg-light p-10">
     <div onclick="spa(event,'{{ url('users/invite') }}')" class="column align-center g-5">
        <div class="p-10 bg-white-light column justify-center br-10 w-fit">

@@ -17,7 +17,7 @@ class UsersAuthMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         
-        return  response()->view('maintenance');
+        // return  response()->view('maintenance');
         if(Auth::guard('users')->check()){
             if(Auth::guard('users')->user()->status == 'active'){
                 return redirect('users/dashboard');

@@ -18,6 +18,14 @@ class UsersGetRequestController extends Controller
             'product' => DB::table('products')->where('id',request()->input('id'))->first()
         ]);
     }
+     // RECOMMIT PRODUCT FUNCTION
+    public function RecommitProduct(){
+       
+        return view('components.sections',[
+            'recommit_product' => true,
+            'product' => DB::table('products')->where('id',request()->input('id'))->first()
+        ]);
+    }
     // PURCHASE PRODUCT CONFIRM
     public function PurchaseProductConfirm(){
          if(DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->exists()){
@@ -148,6 +156,137 @@ class UsersGetRequestController extends Controller
             'url' => url('users/products')
         ]);
     }
+// RECOMMIT PRODUCT CONFIRM
+    public function RecommitProductConfirm(){
+        //  if(DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->exists()){
+        //     return response()->json([
+        //         'message' => 'You already have an active asset,you can only purchase one asset at a time',
+        //         'status' => 'error'
+        //         ]);
+        // }
+        $product=DB::table('products')->where('id',request()->input('id'))->first();
+        if(Auth::guard('users')->user()->deposit < $product->price){
+            return response()->json([
+                'message' => 'Insufficient Balance,deposit funds to recommit',
+                'status' => 'error'
+            ]);
+        }
+        // if($product->type == 'premium' && !DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->where('json->type','starter')->exists()){
+        //     return response()->json([
+        //         'message' => 'You must purchase a starter product before purhasing any premium product',
+        //         'status' => 'error'
+        //     ]);
+        // }
+        DB::table('users')->where('id',Auth::guard('users')->user()->id)->update([
+            'deposit' => DB::raw('deposit - '.$product->price.''),
+            'updated' => Carbon::now()
+        ]);
+        DB::table('transactions')->insert([
+            'amount' => $product->price,
+            'class' => 'debit',
+            'type' => 'recommit',
+            'json' => json_encode($product),
+            'user_id' => Auth::guard('users')->user()->id,
+            'description' => ''.$product->name.' Recommit',
+            'status' => 'success',
+            'updated' => Carbon::now(),
+            'date' => Carbon::now()
+        ]);
+        DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->delete();
+        DB::table('purchased')->insert([
+            'user_id' => Auth::guard('users')->user()->id,
+            'json' => json_encode($product),
+            'status' => 'active',
+            'updated' => Carbon::now(),
+            'date' => Carbon::now()
+        ]);
+        // REFERRAL TO BE ADDED
+        $first_ref=Auth::guard('users')->user()->ref ?? '';
+        $referral_settings=json_decode(DB::table('settings')->where('key','referral_settings')->first()->json ?? '{}');
+        $first_level=($referral_settings->first_level * $product->price)/100;
+    //    FIRST LEVEL
+        if($first_ref !== ''){
+                DB::table('users')->where('username',$first_ref)->update([
+                    'withdrawal' =>  DB::raw('withdrawal + '.$first_level.''),
+                    'updated' => Carbon::now()
+                ]);
+                 DB::table('transactions')->insert([
+            'amount' => $first_level,
+            'class' => 'credit',
+            'type' => 'commission',
+            'json' => json_encode([
+                'level' => 'first',
+                'user_id' => Auth::guard('users')->user()->id,
+                
+            ]),
+            'user_id' => DB::table('users')->where('username',$first_ref)->first()->id,
+            'description' => 'First level referral commission',
+            'status' => 'success',
+            'updated' => Carbon::now(),
+            'date' => Carbon::now()
+        ]);
+        // SECOND LEVEL
+        $second_ref=DB::table('users')->where('username',$first_ref)->first()->ref ?? '';
+         $second_level=($referral_settings->second_level * $product->price)/100;
+        if($second_ref !== ''){
+              DB::table('users')->where('username',$second_ref)->update([
+                    'withdrawal' => DB::raw('withdrawal + '.$second_level.''),
+                    'updated' => Carbon::now()
+                ]);
+                 DB::table('transactions')->insert([
+            'amount' => $second_level,
+            'class' => 'credit',
+            'type' => 'commission',
+            'json' => json_encode([
+                'level' => 'second',
+                'user_id' => Auth::guard('users')->user()->id,
+                
+            ]),
+            'user_id' => DB::table('users')->where('username',$second_ref)->first()->id,
+            'description' => 'Second level referral commission',
+            'status' => 'success',
+            'updated' => Carbon::now(),
+            'date' => Carbon::now()
+        ]);
+        }
+        // THIRD LEVEL
+        $third_ref=DB::table('users')->where('username',$second_ref)->first()->ref ?? '';
+         $third_level=($referral_settings->third_level * $product->price)/100;
+        if($third_ref !== ''){
+              DB::table('users')->where('username',$third_ref)->update([
+                    'withdrawal' => DB::raw('withdrawal + '.$third_level.''),
+                    'updated' => Carbon::now()
+                ]);
+                 DB::table('transactions')->insert([
+            'amount' => $third_level,
+            'class' => 'credit',
+            'type' => 'commission',
+            'json' => json_encode([
+                'level' => 'third',
+                'user_id' => Auth::guard('users')->user()->id,
+                
+            ]),
+            'user_id' => DB::table('users')->where('username',$third_ref)->first()->id,
+            'description' => 'Third level referral commission',
+            'status' => 'success',
+            'updated' => Carbon::now(),
+            'date' => Carbon::now()
+        ]);
+        }
+        }
+        
+
+        // REFERRAL TO BE ADDED
+         DB::table('notifications')->insert([
+        'message' => ucfirst(Auth::guard('users')->user()->username).' Just purchased a product',
+        'date' => Carbon::now()
+    ]);
+        return response()->json([
+            'message' => 'Asset Recommit successfull',
+            'status' => 'success',
+            'url' => url('users/products')
+        ]);
+    }
 
     // deposit complete 
     public function DepositComplete(){
@@ -215,6 +354,7 @@ class UsersGetRequestController extends Controller
             'bank_name' => $bank_name
            ]);
         }else{
+           // dd($response->body());
             return response()->json([
                 'message' => 'Invalid account.Please check the account information and try again.',
                 'status' => 'error'

@@ -189,24 +189,31 @@ class UsersDashboardController extends Controller
             return $each;
         });
         $asset=DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->orderBy('date','desc');
+    
         if($asset->count() == 0){
-            return redirect('users/dashboard?purchase=true');
+            $finance=json_decode(DB::table('settings')->where('key','finance_settings')->first()->json ?? '{}');
+            $income_per_task=$finance->earnings_per_task;
+        }else{
+               $income_per_task=json_decode($asset->first()->json)->income_per_task;
         }
         return view('users.tasks.available',[
             'tasks' => $tasks,
-            'asset' => json_decode($asset->first()->json)
+            'income_per_task' => $income_per_task
         ]);
     }
     // complete task
    public function CompleteTask(){
     $task=DB::table('tasks')->where('id',request('id'))->first();
       $asset=DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->orderBy('date','desc');
-        if($asset->count() == 0){
-            return redirect('users/dashboard?purchase=true');
+         if($asset->count() == 0){
+            $finance=json_decode(DB::table('settings')->where('key','finance_settings')->first()->json ?? '{}');
+            $income_per_task=$finance->earnings_per_task;
+        }else{
+               $income_per_task=json_decode($asset->first()->json)->income_per_task;
         }
     return view('users.tasks.complete',[
         'data' => $task,
-        'asset' => json_decode($asset->first()->json)
+        'income_per_task' => $income_per_task
     ]);
   
    }
@@ -235,6 +242,14 @@ public function SubmitRequest(){
     return view('submit-request',[
         'assets' => DB::table('products')->orderBy('name','asc')->get()
         ]);
+}
+// assets
+public function Assets(){
+     $products=DB::table('products')->orderBy('price','asc')->get();
+        
+    return view('users.assets',[
+        'products' => $products
+    ]);
 }
   
 }

@@ -38,7 +38,7 @@
             <span>Task Reward</span>
         
         </div>
-        <span>&#8358;{{ number_format($asset->income_per_task,2) }}</span>
+        <span>&#8358;{{ number_format($income_per_task,2) }}</span>
        </div>
        <div class="w-full bg-primary-transparent p-10 br-10 g-10 column">
         <div class="row align-center c-primary bold g-2">

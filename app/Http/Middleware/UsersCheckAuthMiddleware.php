@@ -17,7 +17,7 @@ class UsersCheckAuthMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        return response()->view('maintenance');
+        // return response()->view('maintenance');
         if(!Auth::guard('users')->check()){
             return redirect('login');
         }

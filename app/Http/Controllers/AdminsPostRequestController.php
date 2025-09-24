@@ -123,7 +123,9 @@ class AdminsPostRequestController extends Controller
             'daily_check_in' => request()->input('daily_check_in'),
             'welcome_bonus' => request()->input('welcome_bonus'),
             'spin_minimum' => request()->input('spin_minimum'),
-            'spin_maximum' => request()->input('spin_maximum')
+            'spin_maximum' => request()->input('spin_maximum'),
+            'daily_free_tasks' => request()->input('daily_free_tasks'),
+            'earnings_per_task' => request()->input('earnings_per_task')
         ];
         if(DB::table('settings')->where('key',$key)->exists()){
           DB::table('settings')->where('key',$key)->update([

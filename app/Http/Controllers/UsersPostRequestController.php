@@ -241,7 +241,7 @@ class UsersPostRequestController extends Controller
       $asset=json_decode($asset->json ?? '{}');
       $product=DB::table('products')->where('id',$asset->id ?? 0)->first();
       $finance_settings=json_decode(DB::table('settings')->where('key','finance_settings')->first()->json ?? '{}');
-      if(request()->input('amount') < $asset->minimum_withdrawal ??  $finance_settings->min_withdrawal){
+      if(request()->input('amount') < ($asset->minimum_withdrawal ??  $finance_settings->min_withdrawal)){
         return response()->json([
             'message' => ''.($asset->name ?? '').' Minimum withdrawal is &#8358;'.number_format($asset->minimum_withdrawal ??  $finance_settings->min_withdrawal,2).'',
             'status' => 'error'
@@ -255,6 +255,31 @@ class UsersPostRequestController extends Controller
             'status' => 'error'
         ]);
      }
+     $price=0;
+     if(DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->exists()){
+       $purchased= DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->first();
+       $active_asset=json_decode($purchased->json);
+       $price=$active_asset->price;
+     
+     //return   DB::table('transactions')->where('user_id',Auth::guard('users')->user()->id)->where('type','withdrawal')->where('date','>',$purchased->date)->whereNot('status','rejected')->sum('amount');
+
+         if(DB::table('transactions')->where('user_id',Auth::guard('users')->user()->id)->where('type','withdrawal')->where('date','>',$purchased->date)->whereNot('status','rejected')->sum('amount') >= $price){
+            return response()->json([
+                'message' => 'You are required to recommit to continue withdrawing',
+                'status' => 'error',
+                'recommit' => 'true'
+            ]);
+         }
+
+     }
+     if($price == 0){
+        return response()->json([
+            'message' => 'Please purchase and asset to be able to place withdrawal',
+            'status' => 'error'
+        ]);
+     }
+    
+
       $fee=($finance_settings->withdrawal_fee*request()->input('amount'))/100;
      DB::table('users')->where('id',Auth::guard('users')->user()->id)->update([
         'withdrawal' => DB::raw('withdrawal - '.request()->input('amount').'')
@@ -289,18 +314,28 @@ class UsersPostRequestController extends Controller
     }
     // complete task
     public function CompleteTask(){
-        if(!DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->orderBy('date','desc')->exists()){
-            return response()->json([
-                'message' => 'You have to purchase an asset to be able to perform task',
-                'status' => 'error'
-            ]);
-        }
-        $purchased=DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->orderBy('date','desc')->first();
+        // if(!DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->orderBy('date','desc')->exists()){
+        //     return response()->json([
+        //         'message' => 'You have to purchase an asset to be able to perform task',
+        //         'status' => 'error'
+        //     ]);
+        // }
+       $my_asset= DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->orderBy('date','desc');
+       if($my_asset->count() == 0){
+        $finance=json_decode(DB::table('settings')->where('key','finance_settings')->first()->json ?? '{}');
+            $income=$finance->earnings_per_task;
+            $limit=$finance->daily_free_tasks;
+       }else{
+         $purchased=DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->orderBy('date','desc')->first();
         $asset=json_decode($purchased->json);
         $income=$asset->income_per_task;
-        if(DB::table('proofs')->where('user_id',Auth::guard('users')->user()->id)->whereDate('date',Carbon::today())->count() >= $asset->daily_tasks){
+        $limit=$asset->daily_tasks;
+       }
+
+       
+        if(DB::table('proofs')->where('user_id',Auth::guard('users')->user()->id)->whereDate('date',Carbon::today())->count() >= $limit){
             return response()->json([
-                'message' => 'You have reached your task limit of '.$asset->daily_tasks.' tasks for today,kindly wait till tomorrow or upgrade your account to a higher asset',
+                'message' => 'You have reached your task limit of '.$limit.' tasks for today,kindly wait till tomorrow or upgrade your account to a higher asset',
                 'status' => 'error'
             ]);
         } 
@@ -313,9 +348,15 @@ class UsersPostRequestController extends Controller
         $name=time().'.'.request()->file('screenshot')->getClientOriginalExtension();
         
         if(request()->file('screenshot')->move(public_path('proofs'),$name)){
-            DB::table('users')->where('id',Auth::guard('users')->user()->id)->update([
+            if($my_asset->count() == 0){
+                DB::table('users')->where('id',Auth::guard('users')->user()->id)->update([
+                'deposit' => DB::raw('deposit + '.$income.'')
+            ]);
+            }else{
+                DB::table('users')->where('id',Auth::guard('users')->user()->id)->update([
                 'withdrawal' => DB::raw('withdrawal + '.$income.'')
             ]);
+            }
             DB::table('proofs')->insert([
             'user_id' => Auth::guard('users')->user()->id,
             'task_id' => request('id'),

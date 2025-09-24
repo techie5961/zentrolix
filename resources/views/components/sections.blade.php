@@ -104,3 +104,56 @@
     </div>
 
 @endisset
+@isset($recommit_product)
+      <div class="w-full p-10 column g-10">
+        <strong class="desc c-green">Confirm Recommit</strong>
+        <hr>
+        <div class="row align-center space-between">
+            <div class="row g-5 align-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--text)" viewBox="0 0 256 256"><path d="M224,64H176V56a24,24,0,0,0-24-24H104A24,24,0,0,0,80,56v8H32A16,16,0,0,0,16,80V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V80A16,16,0,0,0,224,64ZM96,56a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96ZM224,80v32H192v-8a8,8,0,0,0-16,0v8H80v-8a8,8,0,0,0-16,0v8H32V80Zm0,112H32V128H64v8a8,8,0,0,0,16,0v-8h96v8a8,8,0,0,0,16,0v-8h32v64Z"></path></svg>
+                <span>Product Name</span>
+            </div>
+            <span class="bold font-1 c-green">{{ $product->name }}</span>
+        </div>
+        <div class="row align-center space-between">
+            <div class="row g-5 align-center">
+                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--text)" viewBox="0 0 256 256"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-64-56a16,16,0,1,1-16-16A16,16,0,0,1,144,152Z"></path></svg>
+
+                 <span>Daily Income</span>
+            </div>
+            <span class="bold font-1 c-green">&#8358; {{ number_format($product->daily_income,2)  }}</span>
+        </div>
+         <div class="row align-center space-between">
+            <div class="row g-5 align-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--text)" viewBox="0 0 256 256"><path d="M80,120h96a8,8,0,0,0,8-8V64a8,8,0,0,0-8-8H80a8,8,0,0,0-8,8v48A8,8,0,0,0,80,120Zm8-48h80v32H88ZM200,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V40A16,16,0,0,0,200,24Zm0,192H56V40H200ZM100,148a12,12,0,1,1-12-12A12,12,0,0,1,100,148Zm40,0a12,12,0,1,1-12-12A12,12,0,0,1,140,148Zm40,0a12,12,0,1,1-12-12A12,12,0,0,1,180,148Zm-80,40a12,12,0,1,1-12-12A12,12,0,0,1,100,188Zm40,0a12,12,0,1,1-12-12A12,12,0,0,1,140,188Zm40,0a12,12,0,1,1-12-12A12,12,0,0,1,180,188Z"></path></svg>
+
+                 <span>Total Income</span>
+            </div>
+            <span class="bold font-1 c-green">&#8358; {{ number_format($product->daily_income*$product->cycle,2) }}</span>
+        </div>
+         <div class="row align-center space-between">
+            <div class="row g-5 align-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--text)" viewBox="0 0 256 256"><path d="M232,136.66A104.12,104.12,0,1,1,119.34,24,8,8,0,0,1,120.66,40,88.12,88.12,0,1,0,216,135.34,8,8,0,0,1,232,136.66ZM120,72v56a8,8,0,0,0,8,8h56a8,8,0,0,0,0-16H136V72a8,8,0,0,0-16,0Zm40-24a12,12,0,1,0-12-12A12,12,0,0,0,160,48Zm36,24a12,12,0,1,0-12-12A12,12,0,0,0,196,72Zm24,36a12,12,0,1,0-12-12A12,12,0,0,0,220,108Z"></path></svg>
+
+
+                 <span>Expires After</span>
+            </div>
+            <span class="bold font-1 c-green">{{ number_format($product->cycle) }} Days</span>
+        </div>
+         <div class="row align-center space-between">
+            <div class="row g-5 align-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="var(--text)" viewBox="0 0 256 256"><path d="M230.14,58.87A8,8,0,0,0,224,56H62.68L56.6,22.57A8,8,0,0,0,48.73,16H24a8,8,0,0,0,0,16h18L67.56,172.29a24,24,0,0,0,5.33,11.27,28,28,0,1,0,44.4,8.44h45.42A27.75,27.75,0,0,0,160,204a28,28,0,1,0,28-28H91.17a8,8,0,0,1-7.87-6.57L80.13,152h116a24,24,0,0,0,23.61-19.71l12.16-66.86A8,8,0,0,0,230.14,58.87ZM104,204a12,12,0,1,1-12-12A12,12,0,0,1,104,204Zm96,0a12,12,0,1,1-12-12A12,12,0,0,1,200,204Zm4-74.57A8,8,0,0,1,196.1,136H77.22L65.59,72H214.41Z"></path></svg>
+                     
+
+                 <span>Product Price</span>
+            </div>
+            <span class="bold font-1 c-green">&#8358;{{ number_format($product->price,2) }}</span>
+        </div>
+        <hr>
+        <button onclick="GetRequest(event,'{{ url('users/get/recommit/product/confirm?id='.$product->id.'') }}',this,MyFunc.Confirmed)" class="btn-green-3d left-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="#000000" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm45.66,85.66-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32Z"></path></svg>
+
+            Confirm Recommit</button>
+    </div>
+
+@endisset
