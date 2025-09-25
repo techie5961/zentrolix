@@ -25,7 +25,7 @@
         </div>
         <div class="w-full bg-light box-shadow p-10 g-10 column br-10 top-20">
             <strong class="desc c-primary">Deposit Instructions</strong>
-            <span>- Minimum Deposit is &#8358;{{ number_format($auto[0]->price,2) }}</span>
+            <span>- Minimum Deposit is &#8358;{{ number_format(($auto[0] ?? json_decode('{}'))->price ?? 0,2) }}</span>
              <span>- Deposit Portal is open 247.</span>
               <span>- For safety ,use only the official app or website to make a deposit.</span>
                 <span>- Only send funds to the exact account provided.</span>

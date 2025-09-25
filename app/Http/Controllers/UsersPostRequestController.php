@@ -325,6 +325,12 @@ class UsersPostRequestController extends Controller
         $finance=json_decode(DB::table('settings')->where('key','finance_settings')->first()->json ?? '{}');
             $income=$finance->earnings_per_task;
             $limit=$finance->daily_free_tasks;
+            if(DB::table('proofs')->where('user_id',Auth::guard('users')->user()->id)->exists()){
+            return response()->json([
+                'message' => 'You have reached your limit for free tasks,Please upgrade your account to continue performing tasks',
+                'status' => 'error'
+            ]);
+        }
        }else{
          $purchased=DB::table('purchased')->where('user_id',Auth::guard('users')->user()->id)->where('status','active')->orderBy('date','desc')->first();
         $asset=json_decode($purchased->json);
